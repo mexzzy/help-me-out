@@ -1,15 +1,16 @@
 {
+  "manifest_version": 3,
   "name": "Help me out",
   "description": "This extension helps you record and share help videos with ease.",
-  "version" : "1.0",
-  "manifest_version":3,
-  "action" : {
-    "default_title" : "Help me out",
-    "default_popup" : "./index.html",
-    "default_icon" : {
-      "16" : "helplogo.png",
-      "128" : "helplogo.png",
-      "14" : "helplogo.png"
+  "version": "1.0",
+  "action": {
+    "default_popup": "./index.html",
+    "default_title": "Open",
+    "default_icon": {
+      "16": "helplogo.png",
+      "128": "helplogo.png",
+      "14": "helplogo.png"
     }
-  }
+  },
+  "permissions": ["scripting"]
 }
