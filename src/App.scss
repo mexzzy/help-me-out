@@ -1,0 +1,112 @@
+* {
+  padding: 0;
+  margin: 0;
+  font-family: "Work Sans", sans-serif;
+}
+
+.main {
+  padding: 2.4%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .logo {
+      img {
+        width: 70%;
+      }
+    }
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+  .paragraph {
+    font-size: 14px;
+    font-weight: 400;
+    color: #413c6d;
+  }
+  .screenOptions {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    .screens {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      span {
+        font-weight: 600;
+        color: #120B48;
+      }
+    }
+  }
+  .switchContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-transform: capitalize;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #120b48;
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: #100a42;
+      span {
+        font-weight: 600;
+      }
+    }
+    .toggle-switch {
+      width: 60px;
+      height: 25px;
+      background-color: #ccc;
+      border-radius: 17px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 5px;
+
+      .slider {
+        width: 30px;
+        height: 30px;
+        background-color: #120b48;
+        border-radius: 50%;
+        transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+      }
+
+      &.checked {
+        background-color: #120b48;
+
+        .slider {
+          transform: translateX(30px);
+          background-color: white;
+        }
+      }
+    }
+  }
+  button {
+    background-color: #120b48;
+    color: #fafdff;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 0;
+    outline: none;
+
+    &:hover {
+      opacity: 0.95;
+    }
+    &:active {
+      scale: 0.99;
+    }
+  }
+}
