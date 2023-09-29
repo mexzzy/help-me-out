@@ -41,9 +41,16 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
+      border-radius: 10px;
+      padding: 10px;
       span {
         font-weight: 600;
         color: #120B48;
+      }
+
+      &:hover{
+        background-color: #b3b3b37d;
+        cursor: pointer;
       }
     }
   }
@@ -54,7 +61,8 @@
     text-transform: capitalize;
     padding: 16px;
     border-radius: 12px;
-    border: 2px solid #120b48;
+    border: 1px solid #120b48;
+    
     .right {
       display: flex;
       align-items: center;
@@ -65,21 +73,21 @@
       }
     }
     .toggle-switch {
-      width: 60px;
-      height: 25px;
-      background-color: #ccc;
+      width: 50px;
+      height: 20px;
+      background-color: #b3b3b3;
       border-radius: 17px;
       display: flex;
       align-items: center;
       cursor: pointer;
-      padding: 5px;
+      padding: 4px;
 
       .slider {
-        width: 30px;
-        height: 30px;
-        background-color: #120b48;
+        width: 20px;
+        height: 20px;
+        background-color: white;
         border-radius: 50%;
-        transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+        transition: transform 0.5s cubic-bezier(0.075, 0.72, 0.165, 1);
       }
 
       &.checked {
@@ -87,7 +95,6 @@
 
         .slider {
           transform: translateX(30px);
-          background-color: white;
         }
       }
     }
