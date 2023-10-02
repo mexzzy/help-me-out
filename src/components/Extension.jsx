@@ -5,49 +5,40 @@ import { BiCopy } from "react-icons/bi";
 import logo from "../assets/images/helpLogo.png";
 
 export default function Extension() {
+  // State for various recording options
   const [isVideoChecked, setIsVideoChecked] = useState(false);
   const [isAudioChecked, setIsAudioChecked] = useState(false);
   const [isScreenRecording, setIsScreenRecording] = useState(false);
-  //
   const [isVideoMuted, setIsVideoMuted] = useState(true);
-  //
+
+  // State for controlling recording status
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedContentURL, setRecordedContentURL] = useState(null);
+
+  // Refs for media recording and tab recording
   const mediaRecorderRef = useRef(null);
   const tabRecordingRef = useRef(null);
   const streamRef = useRef(null);
   const audioStreamRef = useRef(null);
 
-  // useEffect(() => {
-  //   // Listen for messages from the background script
-  //   chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  //     if (request.action === "startTabRecording") {
-  //       chrome.tabCapture.capture({ video: true, audio: true }, function (stream) {
-  //         sendResponse({ stream: stream });
-  //       });
-  //       return true; // Keep the message channel open for sendResponse
-  //     }
-  //   });
-  // }, []);
+
+
   const handleCloseTab = () => {
     window.close();
   };
 
+  // Function to start video recording
   const startVideoRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
+
       const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          // Handle the recorded data (e.g., save it to a file or send it to a server)
-          // For example, you can create a blob and save it:
-          // const blob = new Blob([event.data], { type: "video/webm" });
-          // saveBlobToFile(blob);
-        }
-      };
+      // Handle recorded data as needed
 
       mediaRecorderRef.current = mediaRecorder;
-      streamRef.current = stream; // Store the stream in the ref
+      streamRef.current = stream;
       const videoElement = document.getElementById("cameraFeed");
       videoElement.srcObject = stream;
       videoElement.play();
@@ -58,6 +49,7 @@ export default function Extension() {
     }
   };
 
+  // Function to stop video recording
   const stopVideoRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
@@ -65,6 +57,8 @@ export default function Extension() {
       setIsVideoChecked(false);
     }
   };
+
+  // Toggle video recording
   const videoHandleToggle = () => {
     if (isVideoChecked) {
       stopVideoRecording();
@@ -75,22 +69,16 @@ export default function Extension() {
     }
   };
 
+  // Function to start audio recording
   const startAudioRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // You can now use the 'stream' for audio recording or other purposes in your application.
+
       const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          // Handle the recorded data (e.g., save it to a file or send it to a server)
-          // For example, you can create a blob and save it:
-          // const blob = new Blob([event.data], { type: "video/webm" });
-          // saveBlobToFile(blob);
-        }
-      };
+      // Handle recorded data as needed
 
       mediaRecorderRef.current = mediaRecorder;
-      audioStreamRef.current = stream; // Store the stream in the ref
+      audioStreamRef.current = stream;
       mediaRecorder.start();
       setIsVideoMuted(false);
       setIsAudioChecked(true);
@@ -99,8 +87,8 @@ export default function Extension() {
     }
   };
 
+  // Function to stop audio recording
   const stopAudioRecording = () => {
-    // Stop audio stream tracks if they exist
     if (audioStreamRef.current) {
       mediaRecorderRef.current.stop();
       audioStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -109,6 +97,7 @@ export default function Extension() {
     }
   };
 
+  // Toggle audio recording
   const audioHandleToggle = () => {
     if (isAudioChecked) {
       stopAudioRecording();
@@ -119,33 +108,32 @@ export default function Extension() {
     }
   };
 
+  const chrome = window.chrome || {};
+  // Function to start screen recording
   const startScreenRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: true, // Request video stream
-        audio: isAudioChecked, // Request audio stream if audio is checked
-      });
+      // Get the currently active tab
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          const activeTab = tabs[0];
 
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          // Handle the recorded data (e.g., save it to a file or send it to a server)
-          // For example, you can create a blob and save it:
-          // const blob = new Blob([event.data], { type: "video/webm" });
-          // saveBlobToFile(blob);
+          // Send a message to the content script of the active tab
+          chrome.tabs.sendMessage(activeTab.id, {
+            action: "startScreenRecording",
+            audio: isAudioChecked,
+          });
+        } else {
+          console.error("No active tabs found.");
+          setIsScreenRecording(false);
         }
-      };
-
-      mediaRecorderRef.current = mediaRecorder;
-      streamRef.current = stream; // Store the stream in the ref
-      mediaRecorder.start();
-      setIsScreenRecording(true);
+      });
     } catch (error) {
-      console.error("Error accessing screen recording:", error);
-      setIsScreenRecording(false); // Set this to false if there was an error
+      console.error("Error requesting screen recording:", error);
+      setIsScreenRecording(false);
     }
   };
 
+  // Function to stop screen recording
   const stopScreenRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
@@ -154,6 +142,7 @@ export default function Extension() {
     }
   };
 
+  // Toggle screen recording
   const screenHandleToggle = () => {
     if (isScreenRecording) {
       stopScreenRecording();
@@ -162,35 +151,36 @@ export default function Extension() {
       startScreenRecording();
       console.log("screen recording start");
     }
+    setIsVideoMuted(!isVideoMuted);
   };
 
+  // Function to start tab recording
   const startTabRecording = () => {
-    // Send a message to the background script to start tab recording
-    // chrome.runtime.sendMessage(
-    //   { action: "startTabRecording" },
-    //   function (response) {
-    //     if (chrome.runtime.lastError) {
-    //       console.error(chrome.runtime.lastError);
-    //     } else {
-    //       // Handle the response stream here
-    //       const stream = response.stream;
-    //       // You can now use this stream for recording
-    //       console.log("Tab recording started", stream);
-    //       tabRecordingRef.current = stream; // Store the tab recording stream
-    //     }
-    //   }
-    // );
+    const chrome = window.chrome || {};
+    chrome.runtime.sendMessage(
+      { action: "startTabRecording" },
+      function (response) {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError);
+        } else {
+          const stream = response.stream;
+          console.log("Tab recording started", stream);
+          tabRecordingRef.current = stream;
+        }
+      }
+    );
   };
 
+  // Function to stop tab recording
   const stopTabRecording = () => {
-    // Close the tab recording stream if it's active
     if (tabRecordingRef.current) {
       tabRecordingRef.current.getTracks().forEach((track) => track.stop());
-      console.log("Tab recording stopped");
       tabRecordingRef.current = null;
+      console.log("Tab recording stopped");
     }
   };
 
+  // Toggle tab recording
   const tabRecordingHandleToggle = () => {
     if (tabRecordingRef.current) {
       stopTabRecording();
@@ -198,6 +188,70 @@ export default function Extension() {
     } else {
       startTabRecording();
       console.log("tab recording start");
+    }
+    setIsRecording(!isRecording);
+  };
+
+  // Function to start recording (audio and video)
+  const startRecording = async () => {
+    try {
+      if (isVideoChecked || isAudioChecked) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: isVideoChecked,
+          audio: isAudioChecked,
+        });
+
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "video/webm" });
+          const url = URL.createObjectURL(blob);
+          setRecordedContentURL(url);
+          setIsRecording(false);
+        };
+
+        mediaRecorderRef.current = mediaRecorder;
+        streamRef.current = stream;
+        mediaRecorder.start();
+        setIsRecording(true);
+      } else {
+        alert("Please select at least one recording option (video or audio).");
+      }
+    } catch (error) {
+      console.error("Error accessing media devices:", error);
+    }
+  };
+
+  // Function to stop recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      streamRef.current.getTracks().forEach((track) => track.stop());
+    }
+    stopAudioRecording();
+    stopScreenRecording();
+    stopVideoRecording();
+    const videoElement = document.getElementById("cameraFeed");
+    if (videoElement) {
+      videoElement.srcObject = null;
+    }
+  };
+
+  // Toggle recording (audio and video)
+  const recordingHandleToggle = () => {
+    if (isRecording) {
+      stopRecording();
+      console.log("Recording stopped");
+    } else {
+      startRecording();
+      console.log("Recording started");
     }
   };
 
@@ -226,12 +280,24 @@ export default function Extension() {
           This extension helps you record and share help videos with ease.
         </p>
         <div className="screenOptions">
-          <div className="screens" onClick={screenHandleToggle}>
-            <CiDesktop size={45} color="#0F172A" />
+          <div
+            className={`screens ${isScreenRecording && "active"}`}
+            onClick={screenHandleToggle}
+          >
+            <CiDesktop
+              size={45}
+              className={`desktop-icon  ${isScreenRecording && "activeIcon"}`}
+            />
             <span>Full screen</span>
           </div>
-          <div className="screens" onClick={tabRecordingHandleToggle}>
-            <BiCopy size={45} color="#0F172A" />
+          <div
+            className={`screens ${isRecording && "active"}`}
+            onClick={tabRecordingHandleToggle}
+          >
+            <BiCopy
+              size={45}
+              className={`desktop-icon  ${isRecording && "activeIcon"}`}
+            />
             <span>Current Tab</span>
           </div>
         </div>
@@ -259,7 +325,21 @@ export default function Extension() {
             <div className="slider"></div>
           </div>
         </div>
-        <button>Start Recording</button>
+        <button onClick={recordingHandleToggle}>
+          {isRecording ? "Stop Recording" : "Start Recording"}
+        </button>
+
+        {recordedContentURL && (
+          <div>
+            <a
+              href={recordedContentURL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View Recorded Content
+            </a>
+          </div>
+        )}
         <video
           id="cameraFeed"
           autoPlay
@@ -271,6 +351,10 @@ export default function Extension() {
             objectFit: "cover",
           }}
         />
+        <div>
+      <button onClick={requestCameraAccess}>Request Camera Access</button>
+      <button onClick={requestAudioAccess}>Request Audio Access</button>
+    </div>
       </div>
     </>
   );

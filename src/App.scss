@@ -45,13 +45,25 @@
       padding: 10px;
       span {
         font-weight: 600;
-        color: #120B48;
+        color: #928fab;
       }
 
-      &:hover{
-        background-color: #b3b3b37d;
+      &:hover {
+        background-color: #cfcfcf56;
         cursor: pointer;
       }
+    }
+    .active {
+      background-color: #cfcfcf56;
+      span {
+        color: #120b48;
+      }
+    }
+    .desktop-icon {
+      color: #928fab;
+    }
+    .activeIcon {
+      color: #120b48;
     }
   }
   .switchContainer {
@@ -62,7 +74,7 @@
     padding: 16px;
     border-radius: 12px;
     border: 1px solid #120b48;
-    
+
     .right {
       display: flex;
       align-items: center;

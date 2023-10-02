@@ -1,12 +1,31 @@
-// background.js
+// Function to request camera and audio permissions
+const requestCameraAndAudioPermissions = () => {
+  chrome.permissions.request(
+    {
+      permissions: ['camera', 'microphone'],
+    },
+    (granted) => {
+      if (granted) {
+        console.log('Camera and microphone permissions granted.');
+      } else {
+        console.error('Camera and microphone permissions denied.');
+      }
+    }
+  );
+};
 
-// Find the active tab
-chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    const activeTab = tabs[0];
-    
-    // Send a message to the content script to start tab recording
-    chrome.tabs.sendMessage(activeTab.id, { action: "startTabRecording" }, function (response) {
-      // Handle the response if needed
-    });
-  });
-  
+// Function to check if camera and audio permissions are granted
+const checkCameraAndAudioPermissions = () => {
+  chrome.permissions.contains(
+    {
+      permissions: ['camera', 'microphone'],
+    },
+    (result) => {
+      if (result) {
+        console.log('Camera and microphone permissions are granted.');
+      } else {
+        console.error('Camera and microphone permissions are not granted.');
+      }
+    }
+  );
+};
